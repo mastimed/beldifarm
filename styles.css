@@ -606,3 +606,25 @@ details p{
 @media (max-width: 900px){
   .twoCols{ grid-template-columns: 1fr; }
 }
+/* =========================
+   Prices
+   ========================= */
+.priceBox{
+  margin: 10px 0 14px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: #f6fff8;
+  border: 1px solid rgba(46,164,79,.25);
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.priceMain{
+  font-size: 20px;
+  font-weight: 900;
+  color: #0e5a28;
+}
+.priceUnit{
+  font-size: 13px;
+  color: #475569;
+}
