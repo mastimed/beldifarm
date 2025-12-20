@@ -666,3 +666,38 @@ details p{
   font-weight: 900;
 }
 
+.price-section{
+  background:#fff;
+  padding:30px;
+  border-radius:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,.06);
+  margin:40px 0;
+}
+.price-header{
+  text-align:center;
+  margin-bottom:20px;
+}
+.price-logo{
+  height:60px;
+  margin-bottom:10px;
+}
+.price-table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:15px;
+}
+.price-table th,
+.price-table td{
+  padding:14px;
+  border-bottom:1px solid #eee;
+}
+.price-table th{
+  background:#f8fafc;
+  font-weight:700;
+}
+.note{
+  margin-top:15px;
+  font-size:14px;
+  color:#555;
+}
+
