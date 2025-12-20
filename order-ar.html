@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>BeldiFarm — طلب</title>
+  <meta name="description" content="طلب BeldiFarm: بيض بلدي، دجاج بلدي، فلاليس. إرسال عبر واتساب أو إيميل." />
+  <link rel="icon" href="logo-beldifarm.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <header class="header">
+    <div class="container">
+      <div class="nav">
+        <a class="brand" href="index-ar.html">
+          <img src="logo-beldifarm.png" alt="شعار BeldiFarm">
+          <div class="name">
+            <strong>BeldiFarm</strong>
+            <span>صفحة الطلب • دار بوعزة</span>
+          </div>
+        </a>
+
+        <nav class="menu" aria-label="القائمة">
+          <a href="index.html#produits">المنتجات</a>
+          <a href="index.html#livraison">التوصيل</a>
+          <a href="privacy-ar.html">سياسة الخصوصية</a>
+        </nav>
+
+        <div class="cta">
+          <a class="btn" href="order-fr.html">FR</a>
+          <a class="btn primary" href="index-ar.html">رجوع</a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="section">
+    <div class="container">
+      <div class="sectionTitle">
+        <h2>طلب جديد</h2>
+        <p>عمّر الفورم ومن بعد صيفط عبر واتساب ولا الإيميل.</p>
+      </div>
+
+      <section class="formCard">
+        <form id="orderForm">
+          <div class="formGrid">
+            <div class="field">
+              <label for="name">الاسم</label>
+              <input id="name" name="name" type="text" placeholder="الاسم الكامل" required />
+            </div>
+
+            <div class="field">
+              <label for="phone">الهاتف</label>
+              <input id="phone" name="phone" type="tel" placeholder="06.." required />
+            </div>
+
+            <div class="field">
+              <label for="area">المنطقة / الحي</label>
+              <input id="area" name="area" type="text" placeholder="دار بوعزة، تماريس..." required />
+            </div>
+
+            <div class="field">
+              <label for="delivery">وقت التوصيل</label>
+              <select id="delivery" name="delivery" required>
+                <option value="آخر الأسبوع (توصيل أسبوعي)">آخر الأسبوع (توصيل أسبوعي)</option>
+                <option value="السبت">السبت</option>
+                <option value="الأحد">الأحد</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="eggs">البيض (الكمية)</label>
+              <select id="eggs" name="eggs">
+                <option value="0">0</option>
+                <option value="طبق 30">طبق 30</option>
+                <option value="طبقين 60">طبقين 60</option>
+                <option value="3 أطباق 90">3 أطباق 90</option>
+                <option value="نصف طبق 15">نصف طبق 15</option>
+                <option value="اشتراك أسبوعي">اشتراك أسبوعي</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="chicken">الدجاج البلدي</label>
+              <select id="chicken" name="chicken">
+                <option value="0">0</option>
+                <option value="دجاجة وحدة">دجاجة وحدة</option>
+                <option value="جوج دجاج">جوج دجاج</option>
+                <option value="أكثر">أكثر</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="chicks">الفلاليس</label>
+              <select id="chicks" name="chicks">
+                <option value="0">0</option>
+                <option value="5">5</option>
+                <option value="10">10</option>
+                <option value="20">20</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="payment">الدفع</label>
+              <select id="payment" name="payment">
+                <option value="الدفع عند التوصيل">الدفع عند التوصيل</option>
+                <option value="غادي نأكد">غادي نأكد</option>
+              </select>
+            </div>
+
+            <div class="field full">
+              <label for="notes">ملاحظات (العنوان بالتفصيل)</label>
+              <textarea id="notes" name="notes" placeholder="مثال: إقامة X، عمارة Y، طابق..."></textarea>
+            </div>
+          </div>
+
+          <div class="formActions">
+            <button class="btn primary" type="button" id="sendWhatsApp">صيفط على واتساب</button>
+            
+            <a class="btn" href="privacy-ar.html">سياسة الخصوصية</a>
+          </div>
+
+          <p class="notice">
+            منين كتسيفط، كتوافق أن BeldiFarm تستعمل هاد المعلومات غير باش تكمل الطلب وتنسّق التوصيل.
+          </p>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <script>
+    // ✅ بدّل هاد القيم:
+    const WHATSAPP_NUMBER = "212600000000";
+    const YOUR_EMAIL = "contact@beldifarm.com";
+
+    function buildMessageAR(data){
+      return [
+        "سلام BeldiFarm، بغيت ندير طلب:",
+        "",
+        `الاسم: ${data.name}`,
+        `الهاتف: ${data.phone}`,
+        `المنطقة: ${data.area}`,
+        `وقت التوصيل: ${data.delivery}`,
+        "",
+        `البيض: ${data.eggs}`,
+        `الدجاج: ${data.chicken}`,
+        `الفلاليس: ${data.chicks}`,
+        `الدفع: ${data.payment}`,
+        "",
+        `ملاحظات: ${data.notes || "-"}`,
+        "",
+        "شكراً!"
+      ].join("\n");
+    }
+
+    function getFormData(){
+      const f = document.getElementById("orderForm");
+      const fd = new FormData(f);
+      return Object.fromEntries(fd.entries());
+    }
+
+    document.getElementById("sendWhatsApp").addEventListener("click", () => {
+      const data = getFormData();
+      const msg = encodeURIComponent(buildMessageAR(data));
+      window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, "_blank");
+    });
+
+    document.getElementById("sendEmail").addEventListener("click", () => {
+      const data = getFormData();
+      const subject = encodeURIComponent("طلب BeldiFarm");
+      const body = encodeURIComponent(buildMessageAR(data));
+      window.location.href = `mailto:${YOUR_EMAIL}?subject=${subject}&body=${body}`;
+    });
+  </script>
+</body>
+</html>

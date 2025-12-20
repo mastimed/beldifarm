@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>BeldiFarm — Commander</title>
+    <meta name="description"
+        content="Commande BeldiFarm: œufs beldi, poulet beldi, poussins. Envoi via WhatsApp ou Email." />
+    <link rel="icon" href="logo-beldifarm.png" />
+    <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="nav">
+                <a class="brand" href="index-fr.html">
+                    <img src="logo-beldifarm.png" alt="BeldiFarm logo">
+                    <div class="name">
+                        <strong>BeldiFarm</strong>
+                        <span>Commande • Dar Bouazza</span>
+                    </div>
+                </a>
+
+                <nav class="menu" aria-label="Navigation">
+                    <a href="index-fr.html#produits">Produits</a>
+                    <a href="index-fr.html#livraison">Livraison</a>
+                    <a href="privacy-fr.html">Confidentialité</a>
+                </nav>
+
+                <div class="cta">
+                    <a class="btn" href="order-ar.html">AR</a>
+                    <a class="btn primary" href="index-fr.html">Retour</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="section">
+        <div class="container">
+            <div class="sectionTitle">
+                <h2>Passer une commande</h2>
+                <p>Remplissez le formulaire puis envoyez via WhatsApp ou Email.</p>
+            </div>
+
+            <section class="formCard">
+                <form id="orderForm">
+                    <div class="formGrid">
+                        <div class="field">
+                            <label for="name">Nom</label>
+                            <input id="name" name="name" type="text" placeholder="Votre nom" required />
+                        </div>
+
+                        <div class="field">
+                            <label for="phone">Téléphone</label>
+                            <input id="phone" name="phone" type="tel" placeholder="+212 6.." required />
+                        </div>
+
+                        <div class="field">
+                            <label for="area">Zone / Quartier</label>
+                            <input id="area" name="area" type="text" placeholder="Dar Bouazza, Tamaris..." required />
+                        </div>
+
+                        <div class="field">
+                            <label for="delivery">Jour souhaité</label>
+                            <select id="delivery" name="delivery" required>
+                                <option value="Week-end (livraison hebdomadaire)">Week-end (livraison hebdomadaire)
+                                </option>
+                                <option value="Samedi">Samedi</option>
+                                <option value="Dimanche">Dimanche</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="eggs">Œufs (quantité)</label>
+                            <select id="eggs" name="eggs">
+                                <option value="0">0</option>
+                                <option value="1 plateau (30)">1 plateau (30)</option>
+                                <option value="2 plateaux (60)">2 plateaux (60)</option>
+                                <option value="3 plateaux (90)">3 plateaux (90)</option>
+                                <option value="Demi-plateau (15)">Demi-plateau (15)</option>
+                                <option value="Abonnement hebdo">Abonnement hebdo</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="chicken">Poulet beldi</label>
+                            <select id="chicken" name="chicken">
+                                <option value="0">0</option>
+                                <option value="1 poulet">1 poulet</option>
+                                <option value="2 poulets">2 poulets</option>
+                                <option value="Autre">Autre</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="chicks">Poussins (Falouss)</label>
+                            <select id="chicks" name="chicks">
+                                <option value="0">0</option>
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                            </select>
+                        </div>
+
+                        <div class="field">
+                            <label for="payment">Paiement</label>
+                            <select id="payment" name="payment">
+                                <option value="Paiement à la livraison">Paiement à la livraison</option>
+                                <option value="À confirmer">À confirmer</option>
+                            </select>
+                        </div>
+
+                        <div class="field full">
+                            <label for="notes">Notes (adresse exacte, préférence, etc.)</label>
+                            <textarea id="notes" name="notes"
+                                placeholder="Ex: Résidence X, immeuble Y, étage..., laisser à la porte, etc."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="formActions">
+                        <button class="btn primary" type="button" id="sendWhatsApp">Envoyer sur WhatsApp</button>
+                        
+                        <a class="btn" href="privacy-fr.html">Lire la politique de confidentialité</a>
+                    </div>
+
+                    <p class="notice">
+                        En envoyant, vous acceptez que BeldiFarm utilise vos informations uniquement pour traiter votre
+                        commande et organiser la livraison.
+                    </p>
+                </form>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        // ✅ CHANGE THESE:
+        const WHATSAPP_NUMBER = "212600000000"; // ex: 2126xxxxxxxx
+        const YOUR_EMAIL = "contact@beldifarm.com";
+
+        function buildMessageFR(data) {
+            return [
+                "Bonjour BeldiFarm, je souhaite passer une commande :",
+                "",
+                `Nom: ${data.name}`,
+                `Téléphone: ${data.phone}`,
+                `Zone: ${data.area}`,
+                `Jour souhaité: ${data.delivery}`,
+                "",
+                `Œufs: ${data.eggs}`,
+                `Poulet beldi: ${data.chicken}`,
+                `Poussins: ${data.chicks}`,
+                `Paiement: ${data.payment}`,
+                "",
+                `Notes: ${data.notes || "-"}`,
+                "",
+                "Merci !"
+            ].join("\n");
+        }
+
+        function getFormData() {
+            const f = document.getElementById("orderForm");
+            const fd = new FormData(f);
+            return Object.fromEntries(fd.entries());
+        }
+
+        document.getElementById("sendWhatsApp").addEventListener("click", () => {
+            const data = getFormData();
+            const msg = encodeURIComponent(buildMessageFR(data));
+            window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, "_blank");
+        });
+
+        document.getElementById("sendEmail").addEventListener("click", () => {
+            const data = getFormData();
+            const subject = encodeURIComponent("Commande BeldiFarm");
+            const body = encodeURIComponent(buildMessageFR(data));
+            window.location.href = `mailto:${YOUR_EMAIL}?subject=${subject}&body=${body}`;
+        });
+    </script>
+</body>
+
+</html>
