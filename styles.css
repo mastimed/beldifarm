@@ -628,3 +628,41 @@ details p{
   font-size: 13px;
   color: #475569;
 }
+
+/* =========================
+   Stars (ratings)
+   ========================= */
+.stars{
+  display: inline-flex;
+  gap: 2px;
+  line-height: 1;
+  margin: 6px 0 8px;
+  font-size: 16px;
+}
+.stars span{
+  color: #f59e0b; /* amber */
+}
+.reviewHeader{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 10px;
+  margin-top: 8px;
+}
+.reviewName{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+}
+.reviewAvatar{
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  background: rgba(15,23,42,.06);
+  border: 1px solid rgba(15,23,42,.08);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight: 900;
+}
+
