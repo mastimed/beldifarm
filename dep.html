@@ -3,17 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beldifarm Pro - Accès Sécurisé</title>
+    <title>Beldifarm Pro - Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; margin: 0; padding: 0; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-        #app-interface { display: none; } /* Caché par défaut */
-        #login-screen { display: flex; } /* Visible par défaut */
+        #app-interface { display: none; }
+        #login-screen { display: flex; }
     </style>
 </head>
 <body class="min-h-screen">
@@ -24,8 +24,8 @@
             <div class="w-20 h-20 bg-green-100 text-green-600 rounded-3xl flex items-center justify-center text-3xl mx-auto mb-6">
                 <i class="fas fa-lock"></i>
             </div>
-            <h2 class="text-2xl font-black text-slate-800 mb-2">BELDIFARM SÉCURISÉ</h2>
-            <p class="text-slate-400 font-medium mb-8">Veuillez vous connecter pour gérer la ferme</p>
+            <h2 class="text-2xl font-black text-slate-800 mb-2 uppercase italic">BELDIFARM</h2>
+            <p class="text-slate-400 font-medium mb-8 italic">Accès sécurisé réservé</p>
             
             <form id="login-form" class="space-y-4">
                 <input type="email" id="login-email" placeholder="Votre Email" required class="w-full p-4 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-green-500 font-bold">
@@ -36,7 +36,7 @@
         </div>
     </div>
 
-    <!-- 2. INTERFACE DE L'APPLICATION (VOTRE APP) -->
+    <!-- 2. INTERFACE DE L'APPLICATION -->
     <div id="app-interface" class="flex flex-col md:flex-row min-h-screen">
         <!-- SIDEBAR -->
         <aside class="w-full md:w-72 bg-[#0f172a] text-slate-300 flex flex-col shadow-2xl">
@@ -45,191 +45,182 @@
                     <h1 class="text-2xl font-black text-white italic tracking-tighter">BELDIFARM</h1>
                     <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-green-500 mt-1">Cloud Pro</p>
                 </div>
-                <button onclick="window.logout()" class="text-slate-500 hover:text-red-400 transition ml-2"><i class="fas fa-power-off"></i></button>
+                <button id="logout-btn" class="text-slate-500 hover:text-red-400 transition ml-2"><i class="fas fa-power-off"></i></button>
             </div>
             
-            <nav class="flex-1 px-4 space-y-2">
-                <button onclick="showTab('dashboard')" class="nav-btn bg-slate-800 text-green-400 w-full p-4 rounded-xl flex items-center gap-4 font-bold transition">
-                    <i class="fas fa-grid-2"></i> Dashboard
+            <nav id="sidebar-nav" class="flex-1 px-4 space-y-2">
+                <button data-tab="dashboard" class="nav-btn bg-slate-800 text-green-400 w-full p-4 rounded-xl flex items-center gap-4 font-bold transition">
+                    <i class="fas fa-th-large"></i> Dashboard
                 </button>
-                <button onclick="showTab('expenses')" class="nav-btn w-full p-4 rounded-xl flex items-center gap-4 font-bold hover:bg-slate-800 transition">
+                <button data-tab="expenses" class="nav-btn w-full p-4 rounded-xl flex items-center gap-4 font-bold hover:bg-slate-800 transition">
                     <i class="fas fa-shopping-basket"></i> Dépenses
                 </button>
-                <button onclick="showTab('sales')" class="nav-btn w-full p-4 rounded-xl flex items-center gap-4 font-bold hover:bg-slate-800 transition">
+                <button data-tab="sales" class="nav-btn w-full p-4 rounded-xl flex items-center gap-4 font-bold hover:bg-slate-800 transition">
                     <i class="fas fa-coins"></i> Ventes
                 </button>
-                <button onclick="showTab('inventory')" class="nav-btn w-full p-4 rounded-xl flex items-center gap-4 font-bold hover:bg-slate-800 transition">
+                <button data-tab="inventory" class="nav-btn w-full p-4 rounded-xl flex items-center gap-4 font-bold hover:bg-slate-800 transition">
                     <i class="fas fa-box-open"></i> Stock Nourriture
                 </button>
             </nav>
-            <div class="p-6 border-t border-slate-800 text-[10px] font-bold text-slate-500 uppercase">
-                Connecté : <span id="user-display" class="text-slate-300">Admin</span>
-            </div>
         </aside>
 
-        <!-- MAIN -->
+        <!-- CONTENU -->
         <main class="flex-1 p-4 md:p-10 overflow-y-auto h-screen">
             <!-- DASHBOARD -->
             <section id="dashboard" class="tab-content active space-y-8">
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
-                        <p class="text-slate-400 font-bold text-xs uppercase mb-1">Dépenses</p>
+                        <p class="text-slate-400 font-bold text-xs uppercase mb-1 tracking-widest">Dépenses</p>
                         <h2 id="dash-total-exp" class="text-3xl font-black text-slate-900">0 DH</h2>
                     </div>
                     <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
-                        <p class="text-slate-400 font-bold text-xs uppercase mb-1">Ventes</p>
+                        <p class="text-slate-400 font-bold text-xs uppercase mb-1 tracking-widest">Ventes</p>
                         <h2 id="dash-total-sal" class="text-3xl font-black text-slate-900">0 DH</h2>
                     </div>
                     <div id="profit-box" class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
-                        <p class="text-slate-400 font-bold text-xs uppercase mb-1">Bénéfice</p>
+                        <p class="text-slate-400 font-bold text-xs uppercase mb-1 tracking-widest">Bénéfice</p>
                         <h2 id="dash-profit" class="text-3xl font-black text-slate-900">0 DH</h2>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100">
-                        <h4 class="font-black text-slate-800 mb-6 flex items-center gap-2"><i class="fas fa-chart-pie text-green-500"></i> Détails dépenses</h4>
+                        <h4 class="font-black text-slate-800 mb-6 flex items-center gap-2"><i class="fas fa-chart-pie text-green-500"></i> DÉTAILS</h4>
                         <div class="space-y-3">
-                            <div class="flex justify-between p-3 bg-slate-50 rounded-xl"><span class="font-bold text-slate-600">Nourriture</span><span id="cat-nourriture" class="font-black">0 DH</span></div>
-                            <div class="flex justify-between p-3 bg-slate-50 rounded-xl"><span class="font-bold text-slate-600">Médicaments</span><span id="cat-medoc" class="font-black">0 DH</span></div>
-                            <div class="flex justify-between p-3 bg-slate-50 rounded-xl"><span class="font-bold text-slate-600">Matériel</span><span id="cat-materiel" class="font-black">0 DH</span></div>
+                            <div class="flex justify-between p-3 bg-slate-50 rounded-xl"><span class="font-bold text-slate-600 italic">Nourriture</span><span id="cat-nourriture" class="font-black">0 DH</span></div>
+                            <div class="flex justify-between p-3 bg-slate-50 rounded-xl"><span class="font-bold text-slate-600 italic">Médicaments</span><span id="cat-medoc" class="font-black">0 DH</span></div>
+                            <div class="flex justify-between p-3 bg-slate-50 rounded-xl"><span class="font-bold text-slate-600 italic">Matériel</span><span id="cat-materiel" class="font-black">0 DH</span></div>
                         </div>
                     </div>
                     <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 text-center flex flex-col items-center justify-center">
                         <div class="text-6xl font-black text-slate-800" id="dash-stock">0</div>
-                        <p class="text-slate-400 font-bold uppercase text-xs mt-2">Sacs en stock</p>
+                        <p class="text-slate-400 font-bold uppercase text-xs mt-2 tracking-widest">Sacs en stock</p>
                     </div>
                 </div>
             </section>
 
-            <!-- SECTION EXPENSES / SALES / INVENTORY (Mêmes qu'avant) -->
+            <!-- EXPENSES -->
             <section id="expenses" class="tab-content space-y-6">
                 <div class="bg-white p-8 rounded-[2rem] shadow-sm">
-                    <h2 class="text-xl font-black mb-6">Ajouter Dépense</h2>
+                    <h2 class="text-xl font-black mb-6 uppercase">Ajouter Dépense</h2>
                     <form id="exp-form" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <input type="date" id="e-date" required class="p-4 bg-slate-50 rounded-xl border-none">
+                        <input type="date" id="e-date" required class="p-4 bg-slate-50 rounded-xl border-none outline-none">
                         <select id="e-cat" class="p-4 bg-slate-50 rounded-xl border-none font-bold">
                             <option>Nourriture</option><option>Médicament</option><option>Matériel</option><option>Autre</option>
                         </select>
-                        <input type="text" id="e-desc" placeholder="Désignation" required class="p-4 bg-slate-50 rounded-xl border-none">
-                        <input type="number" id="e-amt" placeholder="Montant DH" required class="p-4 bg-slate-50 rounded-xl border-none font-black">
+                        <input type="text" id="e-desc" placeholder="Désignation" required class="p-4 bg-slate-50 rounded-xl border-none outline-none">
+                        <input type="number" id="e-amt" placeholder="Montant DH" required class="p-4 bg-slate-50 rounded-xl border-none font-black outline-none">
                         <button type="submit" class="md:col-span-4 bg-slate-900 text-white p-4 rounded-xl font-bold uppercase tracking-widest">Enregistrer</button>
                     </form>
                 </div>
                 <div id="exp-list" class="bg-white rounded-[2rem] overflow-hidden divide-y divide-slate-50 shadow-sm border border-slate-100"></div>
             </section>
 
+            <!-- SALES -->
             <section id="sales" class="tab-content space-y-6">
                 <div class="bg-white p-8 rounded-[2rem] shadow-sm">
-                    <h2 class="text-xl font-black mb-6">Ajouter Vente</h2>
+                    <h2 class="text-xl font-black mb-6 uppercase">Ajouter Vente</h2>
                     <form id="sal-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <input type="date" id="s-date" required class="p-4 bg-slate-50 rounded-xl border-none">
-                        <input type="text" id="s-desc" placeholder="Client" required class="p-4 bg-slate-50 rounded-xl border-none">
-                        <input type="number" id="s-amt" placeholder="Montant DH" required class="p-4 bg-slate-50 rounded-xl border-none font-black text-green-600">
+                        <input type="date" id="s-date" required class="p-4 bg-slate-50 rounded-xl border-none outline-none">
+                        <input type="text" id="s-desc" placeholder="Détails client" required class="p-4 bg-slate-50 rounded-xl border-none outline-none">
+                        <input type="number" id="s-amt" placeholder="Montant DH" required class="p-4 bg-slate-50 rounded-xl border-none font-black text-green-600 outline-none">
                         <button type="submit" class="md:col-span-3 bg-green-600 text-white p-4 rounded-xl font-bold uppercase tracking-widest">Valider la vente</button>
                     </form>
                 </div>
                 <div id="sal-list" class="bg-white rounded-[2rem] overflow-hidden divide-y divide-slate-50 shadow-sm border border-slate-100"></div>
             </section>
 
+            <!-- INVENTORY -->
             <section id="inventory" class="tab-content text-center">
                 <div class="max-w-md mx-auto bg-white p-12 rounded-[3rem] shadow-xl border border-slate-100">
                     <h2 id="stock-val" class="text-8xl font-black text-slate-800 mb-8">0</h2>
                     <div class="grid grid-cols-2 gap-4">
-                        <button onclick="window.changeStock(1)" class="bg-green-500 text-white p-5 rounded-2xl font-black shadow-lg shadow-green-100">+1 SAC</button>
-                        <button onclick="window.changeStock(-1)" class="bg-red-500 text-white p-5 rounded-2xl font-black shadow-lg shadow-red-100">-1 SAC</button>
+                        <button id="add-stock-btn" class="bg-green-500 text-white p-5 rounded-2xl font-black shadow-lg shadow-green-100 hover:scale-105 transition">+1 SAC</button>
+                        <button id="remove-stock-btn" class="bg-red-500 text-white p-5 rounded-2xl font-black shadow-lg shadow-red-100 hover:scale-105 transition">-1 SAC</button>
                     </div>
                 </div>
             </section>
         </main>
     </div>
 
-    <!-- FIREBASE MODULES -->
+    <!-- MODULE FIREBASE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, deleteDoc, updateDoc, increment, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        
-
- 
         const firebaseConfig = {
-  apiKey: "AIzaSyB7aqYe3lgnEvFtSanKRA3450Lkfk0tjys",
-  authDomain: "ma-ferme-5dedc.firebaseapp.com",
-  projectId: "ma-ferme-5dedc",
-  storageBucket: "ma-ferme-5dedc.firebasestorage.app",
-  messagingSenderId: "1093409748280",
-  appId: "1:1093409748280:web:af8a3022306f070211fdcd",
-  measurementId: "G-RMQC2PEEQ8"
-
-        
+            apiKey: "AIzaSyB7aqYe3lgneVftSanKRA3450Lkfk0tjys",
+            authDomain: "ma-ferme-5dedc.firebaseapp.com",
+            projectId: "ma-ferme-5dedc",
+            storageBucket: "ma-ferme-5dedc.firebasestorage.app",
+            messagingSenderId: "1093409748280",
+            appId: "1:1093409748280:web:af8a3022306f070211fdcd"
+        };
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- GESTION DE L'AUTHENTIFICATION ---
+        // --- AUTHENTIFICATION ---
         const loginForm = document.getElementById('login-form');
         loginForm.onsubmit = async (e) => {
             e.preventDefault();
             const email = document.getElementById('login-email').value;
             const pass = document.getElementById('login-pass').value;
             const errorMsg = document.getElementById('login-error');
-            
             try {
                 await signInWithEmailAndPassword(auth, email, pass);
                 errorMsg.classList.add('hidden');
-            } catch (error) {
+            } catch (err) {
                 errorMsg.classList.remove('hidden');
-                console.error(error);
             }
         };
 
-        window.logout = () => signOut(auth);
+        document.getElementById('logout-btn').onclick = () => signOut(auth);
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 document.getElementById('login-screen').style.display = 'none';
                 document.getElementById('app-interface').style.display = 'flex';
-                document.getElementById('user-display').innerText = user.email;
-                initApp(); // Charger les données Firestore seulement si connecté
+                initApp();
             } else {
                 document.getElementById('login-screen').style.display = 'flex';
                 document.getElementById('app-interface').style.display = 'none';
             }
         });
 
-        // --- FONCTIONS CLOUD ---
+        // --- APP LOGIC ---
         function initApp() {
-            // Dépenses
+            // Listen Expenses
             onSnapshot(query(collection(db, "expenses"), orderBy("date", "desc")), (snap) => {
-                let html = ''; let total = 0; let catTotals = { Nourriture: 0, Médicament: 0, Matériel: 0 };
+                let html = ''; let total = 0; let cats = { Nourriture: 0, Médicament: 0, Matériel: 0 };
                 snap.forEach(docSnap => {
                     const d = docSnap.data(); total += d.amt;
-                    if(catTotals[d.cat] !== undefined) catTotals[d.cat] += d.amt;
-                    html += `<div class="p-6 flex justify-between items-center"><div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-xs font-bold text-slate-400">${d.cat.substring(0,1)}</div><div><p class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">${d.date} • ${d.cat}</p><h4 class="font-bold text-slate-800">${d.desc}</h4></div></div><div class="flex items-center gap-6"><span class="font-black text-slate-900">${d.amt.toLocaleString()} DH</span><button onclick="window.deleteItem('expenses', '${docSnap.id}')" class="text-slate-300 hover:text-red-500"><i class="fas fa-trash-alt"></i></button></div></div>`;
+                    if(cats[d.cat] !== undefined) cats[d.cat] += d.amt;
+                    html += `<div class="p-6 flex justify-between items-center"><div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-xs font-bold">${d.cat.substring(0,1)}</div><div><p class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">${d.date} • ${d.cat}</p><h4 class="font-bold text-slate-800">${d.desc}</h4></div></div><div class="flex items-center gap-6"><span class="font-black text-slate-900">${d.amt.toLocaleString()} DH</span><button onclick="window.delDoc('expenses', '${docSnap.id}')" class="text-slate-300 hover:text-red-500"><i class="fas fa-trash-alt"></i></button></div></div>`;
                 });
                 document.getElementById('exp-list').innerHTML = html;
                 document.getElementById('dash-total-exp').innerText = total.toLocaleString() + " DH";
-                document.getElementById('cat-nourriture').innerText = catTotals.Nourriture.toLocaleString() + " DH";
-                document.getElementById('cat-medoc').innerText = catTotals.Médicament.toLocaleString() + " DH";
-                document.getElementById('cat-materiel').innerText = catTotals.Matériel.toLocaleString() + " DH";
-                updateProfit();
+                document.getElementById('cat-nourriture').innerText = cats.Nourriture.toLocaleString() + " DH";
+                document.getElementById('cat-medoc').innerText = cats.Médicament.toLocaleString() + " DH";
+                document.getElementById('cat-materiel').innerText = cats.Matériel.toLocaleString() + " DH";
+                updateSummary();
             });
 
-            // Ventes
+            // Listen Sales
             onSnapshot(query(collection(db, "sales"), orderBy("date", "desc")), (snap) => {
                 let html = ''; let total = 0;
                 snap.forEach(docSnap => {
                     const d = docSnap.data(); total += d.amt;
-                    html += `<div class="p-6 flex justify-between items-center"><div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-green-50 text-green-500 flex items-center justify-center text-xs"><i class="fas fa-plus"></i></div><div><p class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">${d.date}</p><h4 class="font-bold text-slate-800">${d.desc}</h4></div></div><div class="flex items-center gap-6"><span class="font-black text-green-600">+ ${d.amt.toLocaleString()} DH</span><button onclick="window.deleteItem('sales', '${docSnap.id}')" class="text-slate-300 hover:text-red-500"><i class="fas fa-trash-alt"></i></button></div></div>`;
+                    html += `<div class="p-6 flex justify-between items-center"><div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-green-50 text-green-500 flex items-center justify-center text-xs"><i class="fas fa-plus"></i></div><div><p class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">${d.date}</p><h4 class="font-bold text-slate-800">${d.desc}</h4></div></div><div class="flex items-center gap-6"><span class="font-black text-green-600">+ ${d.amt.toLocaleString()} DH</span><button onclick="window.delDoc('sales', '${docSnap.id}')" class="text-slate-300 hover:text-red-500"><i class="fas fa-trash-alt"></i></button></div></div>`;
                 });
                 document.getElementById('sal-list').innerHTML = html;
                 document.getElementById('dash-total-sal').innerText = total.toLocaleString() + " DH";
-                updateProfit();
+                updateSummary();
             });
 
-            // Stock
+            // Listen Stock
             onSnapshot(doc(db, "settings", "inventory"), (snap) => {
                 const val = snap.exists() ? snap.data().qty : 0;
                 document.getElementById('stock-val').innerText = val;
@@ -237,15 +228,18 @@
             });
         }
 
-        // Window Globals for Buttons
-        window.deleteItem = async (coll, id) => { if(confirm("Supprimer ?")) await deleteDoc(doc(db, coll, id)); };
-        window.changeStock = async (val) => { 
+        // --- ACTIONS ---
+        window.delDoc = async (c, id) => { if(confirm("Supprimer ?")) await deleteDoc(doc(db, c, id)); };
+
+        const updateStock = async (val) => {
             const ref = doc(db, "settings", "inventory");
-            try { await updateDoc(ref, { qty: increment(val) }); } 
+            try { await updateDoc(ref, { qty: increment(val) }); }
             catch(e) { await setDoc(ref, { qty: val < 0 ? 0 : val }); }
         };
 
-        // Enregistrement Formulaires
+        document.getElementById('add-stock-btn').onclick = () => updateStock(1);
+        document.getElementById('remove-stock-btn').onclick = () => updateStock(-1);
+
         document.getElementById('exp-form').onsubmit = async (e) => {
             e.preventDefault();
             await addDoc(collection(db, "expenses"), {
@@ -267,23 +261,28 @@
             e.target.reset();
         };
 
-        function updateProfit() {
+        function updateSummary() {
             const exp = parseFloat(document.getElementById('dash-total-exp').innerText.replace(/\s/g, '')) || 0;
             const sal = parseFloat(document.getElementById('dash-total-sal').innerText.replace(/\s/g, '')) || 0;
             const net = sal - exp;
-            const box = document.getElementById('profit-box');
+            const pBox = document.getElementById('profit-box');
             document.getElementById('dash-profit').innerText = net.toLocaleString() + " DH";
-            box.className = `bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 border-b-4 ${net >= 0 ? 'border-b-green-500 text-green-700' : 'border-b-red-500 text-red-700'}`;
+            pBox.className = `bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 border-b-4 ${net >= 0 ? 'border-b-green-500 text-green-700' : 'border-b-red-500 text-red-700'}`;
         }
-    </script>
 
-    <script>
-        function showTab(id) {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('bg-slate-800', 'text-green-400'));
-            document.getElementById(id).classList.add('active');
-            event.currentTarget.classList.add('bg-slate-800', 'text-green-400');
-        }
+        // UI Tabs
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+            btn.onclick = (e) => {
+                const tabId = e.currentTarget.getAttribute('data-tab');
+                document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('bg-slate-800', 'text-green-400'));
+                document.getElementById(tabId).classList.add('active');
+                e.currentTarget.classList.add('bg-slate-800', 'text-green-400');
+            };
+        });
+
+        document.getElementById('e-date').valueAsDate = new Date();
+        document.getElementById('s-date').valueAsDate = new Date();
     </script>
 </body>
 </html>
