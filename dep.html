@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avicole Master Pro | Gestion de Ferme</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .sidebar-item.active { border-right: 4px solid #10b981; background: #f0fdf4; color: #059669; }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen flex">
+
+    <!-- SIDEBAR -->
+    <aside class="w-20 md:w-64 bg-white shadow-xl flex flex-col transition-all duration-300">
+        <div class="p-6 text-center border-b">
+            <h1 class="hidden md:block text-xl font-black text-green-700 tracking-tighter">AVICOLE <span class="text-gray-800">PRO</span></h1>
+            <i class="fas fa-kiwi-bird text-3xl text-green-600 md:hidden"></i>
+        </div>
+        <nav class="flex-1 mt-6">
+            <button onclick="showTab('dashboard')" class="sidebar-item active w-full p-4 flex items-center justify-center md:justify-start gap-4 text-gray-600 hover:bg-gray-50">
+                <i class="fas fa-chart-line w-6"></i> <span class="hidden md:block font-semibold">Tableau de bord</span>
+            </button>
+            <button onclick="showTab('expenses')" class="sidebar-item w-full p-4 flex items-center justify-center md:justify-start gap-4 text-gray-600 hover:bg-gray-50">
+                <i class="fas fa-wallet w-6"></i> <span class="hidden md:block font-semibold">Dépenses</span>
+            </button>
+            <button onclick="showTab('sales')" class="sidebar-item w-full p-4 flex items-center justify-center md:justify-start gap-4 text-gray-600 hover:bg-gray-50">
+                <i class="fas fa-hand-holding-usd w-6"></i> <span class="hidden md:block font-semibold">Ventes</span>
+            </button>
+            <button onclick="showTab('inventory')" class="sidebar-item w-full p-4 flex items-center justify-center md:justify-start gap-4 text-gray-600 hover:bg-gray-50">
+                <i class="fas fa-box w-6"></i> <span class="hidden md:block font-semibold">Stock Nourriture</span>
+            </button>
+        </nav>
+        <div class="p-4 border-t">
+            <button onclick="resetData()" class="w-full text-xs text-red-400 hover:text-red-600 uppercase font-bold tracking-widest">Réinitialiser</button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 overflow-y-auto h-screen p-4 md:p-8">
+        
+        <!-- DASHBOARD TAB -->
+        <section id="dashboard" class="tab-content active space-y-8">
+            <header class="flex justify-between items-center">
+                <h2 class="text-3xl font-bold text-gray-800">Bonjour, <span class="text-green-600">Admin</span> 👋</h2>
+                <span id="live-clock" class="text-gray-500 font-medium"></span>
+            </header>
+
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <p class="text-gray-400 text-sm font-bold uppercase mb-2">Total Dépenses</p>
+                    <h3 id="stat-expenses" class="text-3xl font-black text-red-500">0 DH</h3>
+                </div>
+                <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <p class="text-gray-400 text-sm font-bold uppercase mb-2">Total Ventes</p>
+                    <h3 id="stat-sales" class="text-3xl font-black text-green-500">0 DH</h3>
+                </div>
+                <div id="profit-card" class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                    <p class="text-gray-400 text-sm font-bold uppercase mb-2">Bénéfice Net</p>
+                    <h3 id="stat-profit" class="text-3xl font-black text-gray-800">0 DH</h3>
+                </div>
+            </div>
+
+            <!-- Chart Section -->
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100">
+                <h3 class="text-lg font-bold text-gray-700 mb-6">Évolution Financière Mensuelle</h3>
+                <div class="h-80">
+                    <canvas id="financeChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- EXPENSES TAB -->
+        <section id="expenses" class="tab-content space-y-6">
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Enregistrer une dépense</h2>
+                <form id="form-expense" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <input type="date" id="exp-date" required class="p-3 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-green-400 border-none">
+                    <select id="exp-cat" class="p-3 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-green-400 border-none">
+                        <option value="Nourriture">Nourriture</option>
+                        <option value="Médicament">Médicament</option>
+                        <option value="Matériel">Matériel / Wakalat</option>
+                        <option value="Autre">Autre</option>
+                    </select>
+                    <input type="text" id="exp-desc" placeholder="Désignation" required class="p-3 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-green-400 border-none">
+                    <input type="number" id="exp-amt" placeholder="Montant DH" required class="p-3 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-green-400 border-none">
+                    <button type="submit" class="md:col-span-4 bg-green-600 text-white font-bold py-3 rounded-xl hover:bg-green-700 transition shadow-lg shadow-green-200">Ajouter la dépense</button>
+                </form>
+            </div>
+            <div class="bg-white rounded-3xl shadow-sm overflow-hidden border border-gray-100">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50 text-gray-400 text-xs uppercase">
+                        <tr><th class="p-4">Date</th><th class="p-4">Catégorie</th><th class="p-4">Description</th><th class="p-4">Montant</th><th class="p-4">Action</th></tr>
+                    </thead>
+                    <tbody id="list-expenses" class="divide-y divide-gray-100"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- SALES TAB -->
+        <section id="sales" class="tab-content space-y-6">
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">Enregistrer une vente</h2>
+                <form id="form-sale" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                    <input type="date" id="sale-date" required class="p-3 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-blue-400 border-none">
+                    <input type="text" id="sale-desc" placeholder="Client / Produit (ex: Vente 100 Poulets)" required class="p-3 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-blue-400 border-none">
+                    <input type="number" id="sale-amt" placeholder="Montant Total DH" required class="p-3 bg-gray-50 rounded-xl outline-none focus:ring-2 focus:ring-blue-400 border-none">
+                    <button type="submit" class="bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition shadow-lg shadow-blue-200">Ajouter la vente</button>
+                </form>
+            </div>
+            <div class="bg-white rounded-3xl shadow-sm overflow-hidden border border-gray-100">
+                <table class="w-full text-left">
+                    <thead class="bg-gray-50 text-gray-400 text-xs uppercase">
+                        <tr><th class="p-4">Date</th><th class="p-4">Description</th><th class="p-4">Montant Vendu</th><th class="p-4">Action</th></tr>
+                    </thead>
+                    <tbody id="list-sales" class="divide-y divide-gray-100"></tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- INVENTORY TAB -->
+        <section id="inventory" class="tab-content space-y-6">
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-gray-100 text-center">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">Stock de Nourriture</h2>
+                <div class="flex justify-center items-center gap-8 mb-6">
+                    <div class="relative w-48 h-48">
+                        <svg class="w-full h-full" viewBox="0 0 36 36">
+                            <path class="text-gray-100" stroke-width="3" fill="none" stroke="currentColor" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path id="stock-progress" class="text-green-500 transition-all duration-1000" stroke-width="3" stroke-dasharray="0, 100" stroke-linecap="round" fill="none" stroke="currentColor" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        </svg>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span id="stock-qty-display" class="text-4xl font-black">0</span>
+                            <span class="text-gray-400 text-xs uppercase">Sacs restants</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="max-w-md mx-auto flex gap-2">
+                    <input type="number" id="stock-add-qty" placeholder="Nb de sacs" class="flex-1 p-3 bg-gray-50 rounded-xl border-none">
+                    <button onclick="updateStock(1)" class="bg-green-600 text-white px-6 rounded-xl font-bold">+ Ajouter</button>
+                    <button onclick="updateStock(-1)" class="bg-orange-500 text-white px-6 rounded-xl font-bold">- Consommer</button>
+                </div>
+                <p class="mt-4 text-sm text-gray-400 italic font-medium text-center">Note : 1 sac = 50kg (standard)</p>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // DATA STATE
+        let db = {
+            expenses: JSON.parse(localStorage.getItem('av_exp')) || [],
+            sales: JSON.parse(localStorage.getItem('av_sales')) || [],
+            stock: parseInt(localStorage.getItem('av_stock')) || 0
+        };
+
+        let myChart;
+
+        // NAVIGATION
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+            if(tabId === 'dashboard') initChart();
+        }
+
+        // EXPENSES LOGIC
+        document.getElementById('form-expense').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const exp = {
+                id: Date.now(),
+                date: document.getElementById('exp-date').value,
+                cat: document.getElementById('exp-cat').value,
+                desc: document.getElementById('exp-desc').value,
+                amt: parseFloat(document.getElementById('exp-amt').value)
+            };
+            db.expenses.push(exp);
+            save();
+            renderExpenses();
+            updateDashboard();
+        });
+
+        // SALES LOGIC
+        document.getElementById('form-sale').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const sale = {
+                id: Date.now(),
+                date: document.getElementById('sale-date').value,
+                desc: document.getElementById('sale-desc').value,
+                amt: parseFloat(document.getElementById('sale-amt').value)
+            };
+            db.sales.push(sale);
+            save();
+            renderSales();
+            updateDashboard();
+        });
+
+        // STOCK LOGIC
+        function updateStock(mod) {
+            const val = parseInt(document.getElementById('stock-add-qty').value) || 0;
+            if(val <= 0) return;
+            db.stock = Math.max(0, db.stock + (val * mod));
+            save();
+            renderStock();
+        }
+
+        // RENDER FUNCTIONS
+        function renderExpenses() {
+            const list = document.getElementById('list-expenses');
+            list.innerHTML = db.expenses.sort((a,b) => new Date(b.date) - new Date(a.date)).map(ex => `
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="p-4 text-sm">${ex.date}</td>
+                    <td class="p-4"><span class="px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold">${ex.cat}</span></td>
+                    <td class="p-4 font-medium">${ex.desc}</td>
+                    <td class="p-4 text-red-500 font-bold">${ex.amt.toFixed(2)} DH</td>
+                    <td class="p-4"><button onclick="deleteItem('expenses', ${ex.id})" class="text-gray-300 hover:text-red-500"><i class="fas fa-trash"></i></button></td>
+                </tr>
+            `).join('');
+        }
+
+        function renderSales() {
+            const list = document.getElementById('list-sales');
+            list.innerHTML = db.sales.sort((a,b) => new Date(b.date) - new Date(a.date)).map(sa => `
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="p-4 text-sm">${sa.date}</td>
+                    <td class="p-4 font-medium">${sa.desc}</td>
+                    <td class="p-4 text-green-600 font-bold">${sa.amt.toFixed(2)} DH</td>
+                    <td class="p-4"><button onclick="deleteItem('sales', ${sa.id})" class="text-gray-300 hover:text-red-500"><i class="fas fa-trash"></i></button></td>
+                </tr>
+            `).join('');
+        }
+
+        function renderStock() {
+            document.getElementById('stock-qty-display').innerText = db.stock;
+            const percentage = Math.min(100, (db.stock / 100) * 100); // 100 sacs = 100%
+            document.getElementById('stock-progress').setAttribute('stroke-dasharray', `${percentage}, 100`);
+        }
+
+        function updateDashboard() {
+            const totalExp = db.expenses.reduce((sum, item) => sum + item.amt, 0);
+            const totalSal = db.sales.reduce((sum, item) => sum + item.amt, 0);
+            const profit = totalSal - totalExp;
+
+            document.getElementById('stat-expenses').innerText = totalExp.toLocaleString() + ' DH';
+            document.getElementById('stat-sales').innerText = totalSal.toLocaleString() + ' DH';
+            document.getElementById('stat-profit').innerText = profit.toLocaleString() + ' DH';
+
+            const profitCard = document.getElementById('profit-card');
+            profitCard.className = `p-6 rounded-3xl shadow-sm border ${profit >= 0 ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`;
+            
+            if(myChart) updateChart();
+        }
+
+        function deleteItem(type, id) {
+            db[type] = db[type].filter(i => i.id !== id);
+            save();
+            type === 'expenses' ? renderExpenses() : renderSales();
+            updateDashboard();
+        }
+
+        function save() {
+            localStorage.setItem('av_exp', JSON.stringify(db.expenses));
+            localStorage.setItem('av_sales', JSON.stringify(db.sales));
+            localStorage.setItem('av_stock', db.stock.toString());
+        }
+
+        // CHART.JS LOGIC
+        function initChart() {
+            const ctx = document.getElementById('financeChart').getContext('2d');
+            if(myChart) myChart.destroy();
+
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: getChartData(),
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: 'bottom' } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        function getChartData() {
+            const months = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Août", "Sep", "Oct", "Nov", "Déc"];
+            const currentYear = new Date().getFullYear();
+            
+            const expMonthly = new Array(12).fill(0);
+            const salesMonthly = new Array(12).fill(0);
+
+            db.expenses.forEach(e => {
+                const d = new Date(e.date);
+                if(d.getFullYear() === currentYear) expMonthly[d.getMonth()] += e.amt;
+            });
+
+            db.sales.forEach(s => {
+                const d = new Date(s.date);
+                if(d.getFullYear() === currentYear) salesMonthly[d.getMonth()] += s.amt;
+            });
+
+            return {
+                labels: months,
+                datasets: [
+                    { label: 'Ventes', data: salesMonthly, borderColor: '#10b981', tension: 0.4, fill: true, backgroundColor: 'rgba(16, 185, 129, 0.1)' },
+                    { label: 'Dépenses', data: expMonthly, borderColor: '#ef4444', tension: 0.4 }
+                ]
+            };
+        }
+
+        function updateChart() {
+            myChart.data = getChartData();
+            myChart.update();
+        }
+
+        function resetData() {
+            if(confirm("Effacer toutes les données définitivement ?")) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        // CLOCK
+        setInterval(() => {
+            document.getElementById('live-clock').innerText = new Date().toLocaleString('fr-FR');
+        }, 1000);
+
+        // INITIAL LOAD
+        renderExpenses();
+        renderSales();
+        renderStock();
+        updateDashboard();
+        initChart();
+        document.getElementById('exp-date').valueAsDate = new Date();
+        document.getElementById('sale-date').valueAsDate = new Date();
+    </script>
+</body>
+</html>
