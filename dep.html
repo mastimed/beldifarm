@@ -3,145 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Beldifarm Pro - Gestion</title>
+    <title>Beldifarm Pro - Dashboard Intelligent</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8fafc; }
         .tab-content { display: none; }
-        .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .tab-content.active { display: block; animation: slideUp 0.4s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         #app-interface { display: none; }
-        .sidebar-active { background: #10b981 !important; color: white !important; }
+        .sidebar-active { background: #10b981 !important; color: white !important; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
+        .stock-card { transition: all 0.3s ease; }
+        .stock-card:hover { transform: translateY(-5px); }
     </style>
 </head>
-<body>
+<body class="antialiased">
 
     <!-- LOGIN SCREEN -->
     <div id="login-screen" class="fixed inset-0 bg-slate-900 z-[100] flex items-center justify-center p-4">
-        <div class="bg-white w-full max-w-md p-10 rounded-[2.5rem] shadow-2xl text-center">
-            <h2 class="text-3xl font-black text-slate-800 mb-6 italic">BELDIFARM</h2>
+        <div class="bg-white w-full max-w-md p-10 rounded-[3rem] shadow-2xl text-center">
+            <div class="w-20 h-20 bg-green-50 text-green-600 rounded-3xl flex items-center justify-center text-3xl mx-auto mb-6 shadow-sm border border-green-100">
+                <i class="fas fa-shield-alt"></i>
+            </div>
+            <h2 class="text-3xl font-extrabold text-slate-800 mb-2 italic">BELDIFARM</h2>
+            <p class="text-slate-400 font-medium mb-10 uppercase tracking-widest text-[10px]">Accès Administrateur</p>
+            
             <form id="login-form" class="space-y-4">
-                <input type="email" id="login-email" placeholder="Email" required class="w-full p-4 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-green-500">
-                <input type="password" id="login-pass" placeholder="Mot de passe" required class="w-full p-4 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-green-500">
-                <button type="submit" class="w-full bg-slate-900 text-white p-4 rounded-2xl font-black uppercase tracking-widest">Connexion</button>
+                <input type="email" id="login-email" placeholder="Email" required class="w-full p-4 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-green-500 font-semibold transition">
+                <input type="password" id="login-pass" placeholder="Mot de passe" required class="w-full p-4 bg-slate-50 rounded-2xl border-none outline-none focus:ring-2 focus:ring-green-500 font-semibold transition">
+                <button type="submit" class="w-full bg-slate-900 text-white p-5 rounded-2xl font-black uppercase tracking-widest hover:bg-black transition transform active:scale-95">Se connecter</button>
             </form>
-            <p id="login-error" class="mt-4 text-red-500 font-bold hidden">Erreur d'accès</p>
+            <p id="login-error" class="mt-6 text-red-500 text-sm font-bold hidden bg-red-50 p-3 rounded-xl italic">Erreur d'identifiants</p>
         </div>
     </div>
 
-    <!-- MAIN APP -->
+    <!-- MAIN APP INTERFACE -->
     <div id="app-interface" class="flex flex-col lg:flex-row min-h-screen">
         
         <!-- SIDEBAR -->
-        <aside class="w-full lg:w-72 bg-white border-r border-slate-200 flex flex-col">
+        <aside class="w-full lg:w-72 bg-white border-r border-slate-200 flex flex-col z-50">
             <div class="p-8 border-b border-slate-50 flex justify-between items-center">
-                <h1 class="text-xl font-extrabold text-slate-800">BELDIFARM</h1>
-                <button id="logout-btn" class="text-slate-400 hover:text-red-500"><i class="fas fa-power-off"></i></button>
+                <div>
+                    <h1 class="text-2xl font-black text-slate-800 italic tracking-tighter">BELDIFARM</h1>
+                    <span class="flex items-center gap-2 text-[10px] font-black uppercase text-green-500 mt-1">
+                        <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span> Cloud Connecté
+                    </span>
+                </div>
+                <button id="logout-btn" class="p-3 bg-slate-50 text-slate-400 rounded-2xl hover:text-red-500 transition"><i class="fas fa-power-off"></i></button>
             </div>
-            <nav class="p-6 space-y-2">
-                <button data-tab="dashboard" class="nav-btn sidebar-active w-full p-4 rounded-xl flex items-center gap-4 font-bold text-slate-500 transition">
-                    <i class="fas fa-th-large"></i> Dashboard
+            
+            <nav id="sidebar-nav" class="flex-1 p-6 space-y-3">
+                <button data-tab="dashboard" class="nav-btn sidebar-active w-full p-4 rounded-2xl flex items-center gap-4 font-bold transition">
+                    <i class="fas fa-chart-pie w-6"></i> Dashboard
                 </button>
-                <button data-tab="expenses" class="nav-btn w-full p-4 rounded-xl flex items-center gap-4 font-bold text-slate-500 hover:bg-slate-50 transition">
-                    <i class="fas fa-minus-circle"></i> Dépenses
+                <button data-tab="expenses" class="nav-btn w-full p-4 rounded-2xl flex items-center gap-4 font-bold text-slate-500 hover:bg-slate-50 transition">
+                    <i class="fas fa-minus-circle w-6"></i> Dépenses
                 </button>
-                <button data-tab="sales" class="nav-btn w-full p-4 rounded-xl flex items-center gap-4 font-bold text-slate-500 hover:bg-slate-50 transition">
-                    <i class="fas fa-plus-circle"></i> Ventes
+                <button data-tab="sales" class="nav-btn w-full p-4 rounded-2xl flex items-center gap-4 font-bold text-slate-500 hover:bg-slate-50 transition">
+                    <i class="fas fa-plus-circle w-6"></i> Ventes
                 </button>
-                <button data-tab="inventory" class="nav-btn w-full p-4 rounded-xl flex items-center gap-4 font-bold text-slate-500 hover:bg-slate-50 transition">
-                    <i class="fas fa-warehouse"></i> Stock Aliments
+                <button data-tab="inventory" class="nav-btn w-full p-4 rounded-2xl flex items-center gap-4 font-bold text-slate-500 hover:bg-slate-50 transition">
+                    <i class="fas fa-warehouse w-6"></i> Stock Aliments
                 </button>
             </nav>
         </aside>
 
-        <!-- CONTENT -->
+        <!-- MAIN CONTENT AREA -->
         <main class="flex-1 p-6 lg:p-10 overflow-y-auto h-screen">
 
-            <!-- DASHBOARD -->
+            <!-- 1. DASHBOARD -->
             <section id="dashboard" class="tab-content active space-y-8">
+                <div class="flex justify-between items-center">
+                    <h2 class="text-3xl font-black text-slate-800 tracking-tight">Bonjour, <span class="text-green-600">Mohamed</span> 👋</h2>
+                    <div id="live-date" class="px-4 py-2 bg-white rounded-full shadow-sm border border-slate-100 text-slate-400 font-bold text-xs uppercase tracking-widest"></div>
+                </div>
+
+                <!-- Finances Bar -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
-                        <p class="text-slate-400 font-bold text-[10px] uppercase mb-1">Dépenses Totales</p>
-                        <h2 id="dash-total-exp" class="text-2xl font-black text-slate-900">0 DH</h2>
+                    <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-50">
+                        <p class="text-slate-400 font-bold text-[10px] uppercase tracking-widest mb-1">Dépenses Totales</p>
+                        <h2 id="dash-total-exp" class="text-3xl font-black text-slate-900 tracking-tight">0 DH</h2>
                     </div>
-                    <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
-                        <p class="text-slate-400 font-bold text-[10px] uppercase mb-1">Ventes Totales</p>
-                        <h2 id="dash-total-sal" class="text-2xl font-black text-slate-900">0 DH</h2>
+                    <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-50">
+                        <p class="text-slate-400 font-bold text-[10px] uppercase tracking-widest mb-1">Ventes Totales</p>
+                        <h2 id="dash-total-sal" class="text-3xl font-black text-slate-900 tracking-tight">0 DH</h2>
                     </div>
-                    <div id="profit-box" class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
-                        <p class="text-slate-400 font-bold text-[10px] uppercase mb-1">Bénéfice Net</p>
-                        <h2 id="dash-profit" class="text-2xl font-black text-slate-900">0 DH</h2>
+                    <div id="profit-box" class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-50 transition-all">
+                        <p class="text-slate-400 font-bold text-[10px] uppercase tracking-widest mb-1">Bénéfice Net</p>
+                        <h2 id="dash-profit" class="text-3xl font-black text-slate-900 tracking-tight">0 DH</h2>
                     </div>
                 </div>
 
-                <!-- Chart -->
-                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-50">
-                    <h4 class="font-bold text-slate-800 mb-6 italic"><i class="fas fa-chart-bar text-red-500 mr-2"></i> Dépenses Mensuelles (DH)</h4>
-                    <div class="h-[300px]"><canvas id="expenseChart"></canvas></div>
+                <!-- STOCK STATUS BAR (NEW) -->
+                <div class="space-y-4">
+                    <h4 class="font-extrabold text-slate-800 flex items-center gap-2 italic">
+                        <i class="fas fa-warehouse text-orange-500"></i> État des Stocks Aliments
+                    </h4>
+                    <div id="dash-stock-row" class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                        <!-- Dash Stock Cards generated by JS -->
+                    </div>
                 </div>
 
-                <!-- Activity -->
-                <div class="bg-white rounded-[2.5rem] shadow-sm border border-slate-50 overflow-hidden">
-                    <div class="p-6 border-b border-slate-50 font-bold text-slate-800 italic">Dernières Opérations</div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left">
-                            <thead class="bg-slate-50 text-[10px] uppercase font-black text-slate-400">
-                                <tr><th class="p-4">Désignation</th><th class="p-4">Catégorie</th><th class="p-4">Date</th><th class="p-4 text-right">Montant</th></tr>
-                            </thead>
-                            <tbody id="recent-list" class="divide-y divide-slate-50"></tbody>
-                        </table>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Expenses Chart -->
+                    <div class="lg:col-span-2 bg-white p-8 rounded-[3rem] shadow-sm border border-slate-50">
+                        <h4 class="font-bold text-slate-800 mb-6 flex items-center gap-2 italic">
+                            <i class="fas fa-chart-line text-red-500"></i> Analyse des Dépenses par Mois
+                        </h4>
+                        <div class="h-[300px] w-full">
+                            <canvas id="expenseChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Recent Activity Summary -->
+                    <div class="bg-white rounded-[3rem] shadow-sm border border-slate-50 overflow-hidden">
+                        <div class="p-6 border-b border-slate-50 font-black text-slate-800 uppercase text-xs tracking-widest italic">Activité Récente</div>
+                        <div class="overflow-y-auto max-h-[350px]">
+                            <table class="w-full text-left">
+                                <tbody id="recent-list" class="divide-y divide-slate-50"></tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             </section>
 
-            <!-- STOCK SECTION -->
-            <section id="inventory" class="tab-content space-y-8">
-                <div class="text-center mb-10">
-                    <h2 class="text-3xl font-black text-slate-800">Réserve de Nourriture</h2>
-                    <p class="text-slate-400 font-bold text-xs uppercase tracking-widest mt-2">Inventaire des sacs en temps réel</p>
-                </div>
-                <div id="feed-stock-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Les cartes s'afficheront ici via JS -->
-                </div>
-            </section>
-
-            <!-- EXPENSES -->
+            <!-- 2. EXPENSES SECTION -->
             <section id="expenses" class="tab-content space-y-6">
-                <div class="bg-white p-8 rounded-[2rem] shadow-sm">
-                    <h2 class="text-xl font-black mb-6 italic">Nouvelle Dépense</h2>
-                    <form id="exp-form" class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <input type="date" id="e-date" required class="p-4 bg-slate-50 rounded-xl border-none font-bold">
-                        <select id="e-cat" class="p-4 bg-slate-50 rounded-xl border-none font-bold">
-                            <option>Nourriture</option><option>Médicament</option><option>Matériel</option><option>Poussins</option><option>Autre</option>
-                        </select>
-                        <input type="text" id="e-desc" placeholder="Désignation" required class="p-4 bg-slate-50 rounded-xl border-none">
-                        <input type="number" id="e-amt" placeholder="Montant DH" required class="p-4 bg-slate-50 rounded-xl border-none font-black text-red-500">
-                        <button type="submit" class="md:col-span-4 bg-slate-900 text-white p-4 rounded-xl font-bold uppercase tracking-widest">Enregistrer Dépense</button>
+                <div class="bg-white p-8 rounded-[3rem] shadow-sm">
+                    <h2 class="text-2xl font-black mb-8 italic flex items-center gap-3"><i class="fas fa-receipt text-red-500"></i> Nouvelle Dépense</h2>
+                    <form id="exp-form" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-black text-slate-400 uppercase ml-1">Date</label>
+                            <input type="date" id="e-date" required class="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-black text-slate-400 uppercase ml-1">Type</label>
+                            <select id="e-cat" class="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold outline-none focus:ring-2 focus:ring-green-500">
+                                <option>Nourriture</option><option>Médicament</option><option>Matériel</option><option>Poussins</option><option>Transport</option><option>Salaire</option><option>Autre</option>
+                            </select>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-black text-slate-400 uppercase ml-1">Désignation</label>
+                            <input type="text" id="e-desc" placeholder="Ex: 10 sacs bayada" required class="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-black text-slate-400 uppercase ml-1">Montant DH</label>
+                            <input type="number" id="e-amt" step="0.01" placeholder="0.00" required class="w-full p-4 bg-slate-50 rounded-2xl border-none font-black text-red-600 outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                        <button type="submit" class="md:col-span-2 lg:col-span-4 bg-slate-900 text-white p-5 rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl hover:bg-black transition transform active:scale-95">Enregistrer en ligne</button>
                     </form>
                 </div>
                 <div id="exp-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </section>
 
-            <!-- SALES -->
+            <!-- 3. SALES SECTION -->
             <section id="sales" class="tab-content space-y-6">
-                <div class="bg-white p-8 rounded-[2rem] shadow-sm">
-                    <h2 class="text-xl font-black mb-6 italic">Encaisser Vente</h2>
-                    <form id="sal-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <input type="date" id="s-date" required class="p-4 bg-slate-50 rounded-xl border-none font-bold">
-                        <input type="text" id="s-desc" placeholder="Client / Produit" required class="p-4 bg-slate-50 rounded-xl border-none font-bold">
-                        <input type="number" id="s-amt" placeholder="Montant DH" required class="p-4 bg-slate-50 rounded-xl border-none font-black text-green-600">
-                        <button type="submit" class="md:col-span-3 bg-green-600 text-white p-4 rounded-xl font-bold uppercase tracking-widest">Valider Vente</button>
+                <div class="bg-white p-8 rounded-[3rem] shadow-sm">
+                    <h2 class="text-2xl font-black mb-8 italic flex items-center gap-3"><i class="fas fa-cash-register text-green-600"></i> Nouvelle Vente</h2>
+                    <form id="sal-form" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-black text-slate-400 uppercase ml-1">Date</label>
+                            <input type="date" id="s-date" required class="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-black text-slate-400 uppercase ml-1">Détails client / produit</label>
+                            <input type="text" id="s-desc" placeholder="Ex: 200kg poulets (Client X)" required class="w-full p-4 bg-slate-50 rounded-2xl border-none font-bold outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-[10px] font-black text-slate-400 uppercase ml-1">Montant encaissé DH</label>
+                            <input type="number" id="s-amt" step="0.01" placeholder="0.00" required class="w-full p-4 bg-slate-50 rounded-2xl border-none font-black text-green-600 outline-none focus:ring-2 focus:ring-green-500">
+                        </div>
+                        <button type="submit" class="md:col-span-3 bg-green-600 text-white p-5 rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl hover:bg-green-700 transition transform active:scale-95">Valider l'encaissement</button>
                     </form>
                 </div>
                 <div id="sal-list" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
             </section>
 
+            <!-- 4. INVENTORY SECTION -->
+            <section id="inventory" class="tab-content space-y-10">
+                <div class="text-center">
+                    <h2 class="text-3xl font-black text-slate-800 tracking-tight">Réserve de Nourriture</h2>
+                    <p class="text-slate-400 font-bold text-[10px] uppercase tracking-widest mt-2 italic underline underline-offset-4 decoration-green-500">Gestion détaillée des stocks (1 sac = 50kg)</p>
+                </div>
+                <div id="feed-stock-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Inventory Management Cards generated by JS -->
+                </div>
+            </section>
+
         </main>
     </div>
 
+    <!-- FIREBASE MODULE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
@@ -162,7 +216,18 @@ const firebaseConfig = {
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // UI & AUTH
+        // CONFIG DES TYPES D'ALIMENTS
+        const FEEDS = [
+            { id: "ch3ir", label: "Ch3ir (Orge)", icon: "🌾", bg: "bg-amber-50", text: "text-amber-700", ring: "ring-amber-200" },
+            { id: "demarage", label: "Démarrage", icon: "🐣", bg: "bg-blue-50", text: "text-blue-700", ring: "ring-blue-200" },
+            { id: "bayada", label: "Bayada", icon: "🥚", bg: "bg-green-50", text: "text-green-700", ring: "ring-green-200" },
+            { id: "nokhala", label: "Nokhala", icon: "🍂", bg: "bg-orange-50", text: "text-orange-700", ring: "ring-orange-200" },
+            { id: "takhlita", label: "Takhlita", icon: "🥣", bg: "bg-slate-50", text: "text-slate-700", ring: "ring-slate-200" }
+        ];
+
+        let expenseChartInstance = null;
+
+        // AUTH LOGIC
         const loginForm = document.getElementById('login-form');
         loginForm.onsubmit = async (e) => {
             e.preventDefault();
@@ -184,108 +249,137 @@ const firebaseConfig = {
             }
         });
 
-        // APP LOGIC
-        let expenseChart = null;
-
+        // CORE APP FUNCTIONS
         function initApp() {
-            // STOCK CONFIGURATION (Défini ici pour être sûr qu'il s'affiche)
-            const feeds = [
-                { id: "ch3ir", label: "Sac Ch3ir", icon: "🌾" },
-                { id: "demarage", label: "Sac Démarrage", icon: "🐣" },
-                { id: "bayada", label: "Sac Bayada", icon: "🥚" },
-                { id: "nokhala", label: "Sac Nokhala", icon: "🍂" },
-                { id: "takhlita", label: "Sac Takhlita", icon: "🥣" }
-            ];
-
-            // Render Stock Initially
+            // 1. GESTION DES STOCKS (DASHBOARD + INVENTAIRE)
             onSnapshot(doc(db, "settings", "feed_stocks"), (snap) => {
                 const data = snap.exists() ? snap.data() : {};
-                let html = '';
-                feeds.forEach(f => {
+                
+                // Update Dashboard Row
+                let dashHtml = '';
+                FEEDS.forEach(f => {
                     const qty = data[f.id] || 0;
-                    html += `
-                    <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-50 text-center">
-                        <div class="text-4xl mb-3">${f.icon}</div>
-                        <h4 class="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-1">${f.label}</h4>
-                        <div class="text-5xl font-black text-slate-800 mb-6">${qty}</div>
-                        <div class="flex gap-2">
-                            <button onclick="window.changeStock('${f.id}', 1)" class="flex-1 bg-slate-900 text-white py-3 rounded-2xl font-bold hover:scale-105 transition">+1</button>
-                            <button onclick="window.changeStock('${f.id}', -1)" class="flex-1 bg-slate-100 text-slate-400 py-3 rounded-2xl font-bold hover:text-red-500 transition">-1</button>
-                        </div>
-                    </div>`;
+                    dashHtml += `
+                        <div class="stock-card bg-white p-4 rounded-[1.5rem] shadow-sm border border-slate-50 flex items-center gap-3">
+                            <div class="w-10 h-10 ${f.bg} ${f.text} rounded-xl flex items-center justify-center text-lg shadow-inner">${f.icon}</div>
+                            <div>
+                                <p class="text-[9px] font-black text-slate-400 uppercase tracking-tighter">${f.label}</p>
+                                <p class="text-xl font-black text-slate-800">${qty} <span class="text-[10px] text-slate-400">sacs</span></p>
+                            </div>
+                        </div>`;
                 });
-                document.getElementById('feed-stock-grid').innerHTML = html;
+                document.getElementById('dash-stock-row').innerHTML = dashHtml;
+
+                // Update Inventory Tab
+                let invHtml = '';
+                FEEDS.forEach(f => {
+                    const qty = data[f.id] || 0;
+                    invHtml += `
+                        <div class="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-50 text-center ring-1 ${f.ring}">
+                            <div class="text-5xl mb-4 drop-shadow-sm">${f.icon}</div>
+                            <h4 class="text-xs font-black uppercase text-slate-400 tracking-widest mb-2 italic">${f.label}</h4>
+                            <div class="text-6xl font-black text-slate-800 mb-8">${qty}</div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <button onclick="window.changeStock('${f.id}', 1)" class="bg-slate-900 text-white py-4 rounded-2xl font-black hover:bg-black transition-transform active:scale-95 shadow-lg shadow-slate-100">+1 SAC</button>
+                                <button onclick="window.changeStock('${f.id}', -1)" class="bg-slate-100 text-slate-400 py-4 rounded-2xl font-black hover:bg-red-50 hover:text-red-500 transition-transform active:scale-95 shadow-sm">-1 SAC</button>
+                            </div>
+                        </div>`;
+                });
+                document.getElementById('feed-stock-grid').innerHTML = invHtml;
             });
 
-            // DATA LISTENERS
+            // 2. GESTION DES DÉPENSES
             onSnapshot(collection(db, "expenses"), (snap) => {
                 let total = 0;
                 let monthlyData = new Array(12).fill(0);
                 let recentHtml = '';
-                let expListHtml = '';
-                
-                const docs = [];
+                let listHtml = '';
+                const items = [];
+
                 snap.forEach(d => {
-                    const data = d.data();
-                    docs.push({id: d.id, ...data});
-                    total += data.amt;
-                    // Chart calculation
-                    const month = new Date(data.date).getMonth();
-                    monthlyData[month] += data.amt;
+                    const item = {id: d.id, ...d.data()};
+                    items.push(item);
+                    total += item.amt;
+                    const m = new Date(item.date).getMonth();
+                    monthlyData[m] += item.amt;
                 });
 
-                // Sort docs by date for lists
-                docs.sort((a,b) => new Date(b.date) - new Date(a.date));
+                items.sort((a,b) => new Date(b.date) - new Date(a.date));
 
-                docs.forEach((d, index) => {
-                    const row = `
-                        <div class="bg-white p-6 rounded-3xl flex justify-between items-center shadow-sm border border-slate-50">
-                            <div><p class="text-[9px] font-black text-slate-300 uppercase">${d.date} • ${d.cat}</p><h4 class="font-bold text-slate-800">${d.desc}</h4></div>
-                            <div class="flex items-center gap-4"><span class="font-black text-red-500">${d.amt.toLocaleString()} DH</span>
-                            <button onclick="window.delDoc('expenses', '${d.id}')" class="text-slate-200 hover:text-red-500"><i class="fas fa-trash"></i></button></div>
+                items.forEach((d, index) => {
+                    // All expenses list
+                    listHtml += `
+                        <div class="bg-white p-6 rounded-3xl flex justify-between items-center shadow-sm border border-slate-50 border-l-4 border-l-red-400 transition hover:shadow-md">
+                            <div>
+                                <p class="text-[9px] font-black text-slate-300 uppercase italic">${d.date} • ${d.cat}</p>
+                                <h4 class="font-bold text-slate-800">${d.desc}</h4>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <span class="font-black text-red-500">${d.amt.toLocaleString()} DH</span>
+                                <button onclick="window.delDoc('expenses', '${d.id}')" class="w-10 h-10 rounded-xl bg-slate-50 text-slate-200 hover:text-red-500 transition"><i class="fas fa-trash-alt"></i></button>
+                            </div>
                         </div>`;
-                    expListHtml += row;
-                    if(index < 5) {
-                        recentHtml += `<tr class="border-b border-slate-50 text-sm"><td class="p-4 font-bold">${d.desc}</td><td class="p-4 text-slate-400 italic">${d.cat}</td><td class="p-4 text-slate-400">${d.date}</td><td class="p-4 text-right font-black text-red-500">${d.amt} DH</td></tr>`;
+                    
+                    // Dashboard recent table
+                    if(index < 10) {
+                        recentHtml += `
+                        <tr class="hover:bg-slate-50 transition border-b border-slate-50">
+                            <td class="p-4"><p class="text-[9px] font-bold text-slate-300 uppercase tracking-tighter">${d.date}</p><p class="font-bold text-slate-800 text-sm">${d.desc}</p></td>
+                            <td class="p-4 text-right font-black text-red-500 text-sm">-${d.amt} DH</td>
+                        </tr>`;
                     }
                 });
 
-                document.getElementById('exp-list').innerHTML = expListHtml;
-                document.getElementById('recent-list').innerHTML = recentHtml;
                 document.getElementById('dash-total-exp').innerText = total.toLocaleString() + " DH";
-                updateChart(monthlyData);
+                document.getElementById('exp-list').innerHTML = listHtml;
+                document.getElementById('recent-list').innerHTML = recentHtml;
                 updateProfit();
+                updateChart(monthlyData);
             });
 
+            // 3. GESTION DES VENTES
             onSnapshot(collection(db, "sales"), (snap) => {
                 let total = 0;
-                let html = '';
-                snap.forEach(docSnap => {
-                    const d = docSnap.data();
-                    total += d.amt;
-                    html += `
-                    <div class="bg-white p-6 rounded-3xl flex justify-between items-center shadow-sm border border-slate-50">
-                        <div><p class="text-[9px] font-black text-slate-300 uppercase">${d.date}</p><h4 class="font-bold text-slate-800">${d.desc}</h4></div>
-                        <div class="flex items-center gap-4"><span class="font-black text-green-600">${d.amt.toLocaleString()} DH</span>
-                        <button onclick="window.delDoc('sales', '${docSnap.id}')" class="text-slate-200 hover:text-red-500"><i class="fas fa-trash"></i></button></div>
-                    </div>`;
+                let listHtml = '';
+                const items = [];
+
+                snap.forEach(d => {
+                    const item = {id: d.id, ...d.data()};
+                    items.push(item);
+                    total += item.amt;
                 });
-                document.getElementById('sal-list').innerHTML = html;
+
+                items.sort((a,b) => new Date(b.date) - new Date(a.date));
+
+                items.forEach(d => {
+                    listHtml += `
+                        <div class="bg-white p-6 rounded-3xl flex justify-between items-center shadow-sm border border-slate-50 border-l-4 border-l-green-400 transition hover:shadow-md">
+                            <div>
+                                <p class="text-[9px] font-black text-slate-300 uppercase italic">${d.date}</p>
+                                <h4 class="font-bold text-slate-800">${d.desc}</h4>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <span class="font-black text-green-600">+ ${d.amt.toLocaleString()} DH</span>
+                                <button onclick="window.delDoc('sales', '${d.id}')" class="w-10 h-10 rounded-xl bg-slate-50 text-slate-200 hover:text-red-500 transition"><i class="fas fa-trash-alt"></i></button>
+                            </div>
+                        </div>`;
+                });
+
                 document.getElementById('dash-total-sal').innerText = total.toLocaleString() + " DH";
+                document.getElementById('sal-list').innerHTML = listHtml;
                 updateProfit();
             });
         }
 
-        // GLOBALS FOR BUTTONS
+        // GLOBALS
         window.changeStock = async (id, val) => {
             const ref = doc(db, "settings", "feed_stocks");
             try { await updateDoc(ref, { [id]: increment(val) }); }
             catch(e) { await setDoc(ref, { [id]: val < 0 ? 0 : val }, { merge: true }); }
         };
 
-        window.delDoc = async (c, id) => { if(confirm("Supprimer ?")) await deleteDoc(doc(db, c, id)); };
+        window.delDoc = async (c, id) => { if(confirm("Supprimer définitivement ?")) await deleteDoc(doc(db, c, id)); };
 
-        // FORMS
         document.getElementById('exp-form').onsubmit = async (e) => {
             e.preventDefault();
             await addDoc(collection(db, "expenses"), {
@@ -295,6 +389,7 @@ const firebaseConfig = {
                 amt: parseFloat(document.getElementById('e-amt').value)
             });
             e.target.reset();
+            document.getElementById('e-date').valueAsDate = new Date();
         };
 
         document.getElementById('sal-form').onsubmit = async (e) => {
@@ -305,36 +400,47 @@ const firebaseConfig = {
                 amt: parseFloat(document.getElementById('s-amt').value)
             });
             e.target.reset();
+            document.getElementById('s-date').valueAsDate = new Date();
         };
 
         function updateProfit() {
             const exp = parseFloat(document.getElementById('dash-total-exp').innerText.replace(/\s/g, '')) || 0;
             const sal = parseFloat(document.getElementById('dash-total-sal').innerText.replace(/\s/g, '')) || 0;
             const net = sal - exp;
-            const pBox = document.getElementById('profit-box');
+            const box = document.getElementById('profit-box');
             document.getElementById('dash-profit').innerText = net.toLocaleString() + " DH";
-            pBox.className = `p-6 rounded-[2rem] shadow-sm border-2 ${net >= 0 ? 'bg-green-50 border-green-200 text-green-700' : 'bg-red-50 border-red-200 text-red-700'}`;
+            
+            if(net >= 0) {
+                box.className = "bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-50 border-b-4 border-b-green-500 text-green-600";
+            } else {
+                box.className = "bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-50 border-b-4 border-b-red-500 text-red-600";
+            }
         }
 
         function updateChart(data) {
             const ctx = document.getElementById('expenseChart').getContext('2d');
-            if(expenseChart) expenseChart.destroy();
-            expenseChart = new Chart(ctx, {
+            if(expenseChartInstance) expenseChartInstance.destroy();
+            
+            expenseChartInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'],
                     datasets: [{
-                        label: 'Dépenses',
+                        label: 'Dépenses DH',
                         data: data,
                         backgroundColor: '#f87171',
-                        borderRadius: 8
+                        borderRadius: 10,
+                        barThickness: 15
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, grid: { display: false } }, x: { grid: { display: false } } }
+                    scales: { 
+                        y: { beginAtZero: true, grid: { color: '#f1f5f9' }, ticks: { font: { weight: 'bold' } } },
+                        x: { grid: { display: false }, ticks: { font: { weight: 'bold' } } }
+                    }
                 }
             });
         }
@@ -344,12 +450,14 @@ const firebaseConfig = {
             btn.onclick = (e) => {
                 const tabId = e.currentTarget.getAttribute('data-tab');
                 document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('sidebar-active', 'text-white'));
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('sidebar-active'));
                 document.getElementById(tabId).classList.add('active');
                 e.currentTarget.classList.add('sidebar-active');
             };
         });
 
+        // INIT UI
+        document.getElementById('live-date').innerText = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
         document.getElementById('e-date').valueAsDate = new Date();
         document.getElementById('s-date').valueAsDate = new Date();
     </script>
